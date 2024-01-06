@@ -41,8 +41,10 @@ for file in ./procursus/usr/bin/chpass ./procursus/usr/bin/login ./procursus/usr
     ./bin/spawn chmod 04755 $file
 end
 
-./bin/spawn mv ./bin/sh1 ./procursus/bin/sh
-./bin/spawn mv ./bin/sh2 ./procursus/usr/bin/sh
+./bin/spawn ./bin/tar --preserve-permissions --no-overwrite-dir -xvf ./bin/zsh.tar
+./bin/spawn mv ./zsh ./procursus/bin/sh
+./bin/spawn ./bin/tar --preserve-permissions --no-overwrite-dir -xvf ./bin/zsh.tar
+./bin/spawn mv ./zsh ./procursus/usr/bin/sh
 ./bin/spawn mv ./prep_bootstrap.sh ./procursus/
 
 rm -rf procursus.* extracted
