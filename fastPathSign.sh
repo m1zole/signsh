@@ -8,14 +8,11 @@ function get_header
     ./bin/xxd -l 16 -p $argv[1]
 end
 
-./bin/curl -OL https://apt.procurs.us/bootstraps/1900/bootstrap-iphoneos-arm64.tar.zst
-./bin/zstd -d bootstrap-iphoneos-arm64.tar.zst -o procursus.tar
-mkdir procursus
-./bin/spawn ./bin/tar --preserve-permissions --no-overwrite-dir -xvf bootstrap.tar -C procursus
-
-for lib in (find ./lib)
-    mv $lib ./procursus/usr/lib/
-end
+./bin/curl -o procursus.tar.zst -L https://apt.procurs.us/bootstraps/1900/bootstrap-iphoneos-arm64.tar.zst
+./bin/zstd -d procursus.tar.zst -o procursus.tar
+mkdir extracted
+./bin/spawn ./bin/tar --preserve-permissions --no-overwrite-dir -xvf procursus.tar -C extracted
+./bin/spawn mv extracted/var/jb ./procursus
 
 for file in (find ./procursus)
     switch (get_header $file)
@@ -36,9 +33,16 @@ for file in (find ./procursus)
     end
 end
 
-for file in (./procursus/usr/bin/chpass ./procursus/usr/bin/login ./procursus/usr/bin/passwd ./procursus/usr/bin/quota ./procursus/usr/bin/su ./procursus/usr/bin/sudo)
+for lib in (find ./lib)
+    ./bin/spawn mv $lib ./procursus/usr/lib/
+end
+
+for file in ./procursus/usr/bin/chpass ./procursus/usr/bin/login ./procursus/usr/bin/passwd ./procursus/usr/bin/quota ./procursus/usr/bin/su ./procursus/usr/bin/sudo
     ./bin/spawn chmod 04755 $file
 end
 
-cp ./procursus/bin/zsh ./procursus/bin/sh
-cp ./procursus/bin/zsh ./procursus/usr/bin/sh
+./bin/spawn mv ./bin/sh1 ./procursus/bin/sh
+./bin/spawn mv ./bin/sh2 ./procursus/usr/bin/sh
+./bin/spawn mv ./prep_bootstrap.sh ./procursus/
+
+rm -rf procursus.* extracted
